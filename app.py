@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -12,6 +12,14 @@ class Product(db.Model):
   name = db.Column(db.String(120), nullable=False)
   price = db.Column(db.Float, nullable=False)
   description = db.Column(db.Text, nullable=True)
+
+@app.route('/api/products/add', methods=['POST'])
+def add_product():
+    data = request.json
+    product = Product(name=data['price'], price=data['price'], description=data.get('description', '')) #creates product
+    db.session.add(product) # add the product at database
+    db.session.commit() # sett the command to database
+    return 'Product registered successfully!'
 
 @app.route('/')
 def hello_world():
