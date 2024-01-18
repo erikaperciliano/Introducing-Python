@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,14 +16,26 @@ class Product(db.Model):
 @app.route('/api/products/add', methods=['POST'])
 def add_product():
     data = request.json
-    product = Product(name=data['price'], price=data['price'], description=data.get('description', '')) #creates product
-    db.session.add(product) # add the product at database
-    db.session.commit() # sett the command to database
-    return 'Product registered successfully!'
+    if 'name' in data and 'price' in data:
+      product = Product(name=data['name'], price=data['price'], description=data.get('description', '')) #creates product
+      db.session.add(product) # add the product at database
+      db.session.commit() # sett the command to database
+      return jsonify({'message':'Product registered successfully!'})
+    return jsonify({'message': 'Invalid product data'}), 400
+
+@app.route('/api/products/delete/<int:product_id>', methods=['DELETE'])
+def delete_product(product_id):
+  # retrieves the product from the database
+  product = Product.query.get(product_id)
+  if product:
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({'message': 'Product deleted successfully!'})
+  return jsonify({'message': 'Product not found!'}), 404
 
 @app.route('/')
-def hello_world():
-  return 'Hello World'
+def start():
+  return 'Server running!'
 
 if __name__ == '__main__':
   app.run(debug=True)
