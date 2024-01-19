@@ -19,7 +19,7 @@ def add_product():
     if 'name' in data and 'price' in data:
       product = Product(name=data['name'], price=data['price'], description=data.get('description', '')) #creates product
       db.session.add(product) # add the product at database
-      db.session.commit() # sett the command to database
+      db.session.commit() # setts the command to database
       return jsonify({'message':'Product registered successfully!'})
     return jsonify({'message': 'Invalid product data'}), 400
 
@@ -44,6 +44,25 @@ def get_product_details(product_id):
       'description': product.description
     })
   return jsonify({'message': 'Product not found!'}), 404
+
+@app.route('/api/products/update/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+  product = Product.query.get(product_id)
+  if not product:
+    return jsonify({'message': 'Product not found!'}), 404
+
+  data = request.json
+  if 'name' in data:
+    product.name = data['name']
+
+  if 'price' in data:
+    product.price = data['price']
+
+  if 'description' in data:
+    product.description = data['description']
+
+  db.session.commit()
+  return jsonify({'message': 'Product updated successfully!!'})
 
 @app.route('/')
 def start():
